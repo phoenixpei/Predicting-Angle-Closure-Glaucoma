@@ -1,0 +1,16 @@
+{
+    "contents" : "# Clear memory and load packages\nrm(list=ls())\nlibrary(stats)\nlibrary(glmnet)\nlibrary(ggplot2)\nlibrary(scatterplot3d)\n\n# Read data, remove columns, clean NA rows\nmy.data <- read.csv(\"AngleClosure.csv\")\nmy.data <- my.data[,-c(1,15,16)]\nmy.data <- my.data[complete.cases(my.data),]\nmy.data[,-21] <- data.matrix(my.data[,-21])\nmy.data[,21] <- factor(my.data[,21])\nrow.names(my.data) <- NULL\n\n# Exploratory analysis of the data\nggplot(my.data, aes(x=ACA, y=ACV, color=ANGLE.CLOSURE)) + \n  geom_point()\n# Exploratory analysis of the data: PCA\nmy.pca <- prcomp(my.data[,-21], scale.=T)\nmy.pcdata <- as.matrix(my.data[,-21]) %*% my.pca$rotation\nmy.pcdata <- as.data.frame(my.pcdata)\n# Exploratory analysis of the data: PCA in 3DS\nscatterplot3d(my.pcdata$PC1, my.pcdata$PC2, my.pcdata$PC3, \n              color=as.numeric(my.data$ANGLE.CLOSURE))\n\n# -------------------- Fitting Logistic Model -------------------- #\n\n# Arrange the data\nx <- data.matrix(my.data[,-21])\ny <- factor(my.data[,21])\n\n# Fit logistic model, do cross validation\nmy.logit = glmnet(x, y, family = \"binomial\", alpha=0.5)\nplot(my.logit, xvar = \"dev\", label = TRUE)\nmy.cv = cv.glmnet(x, y, family = \"binomial\", , alpha=0.5, \n                  nfolds=50, type.measure = \"class\")\nplot(my.cv)\n\n# Compute mis-classification rate\nmy.pred <- predict(my.cv, newx = x, s = \"lambda.min\", type = \"class\")\nsum(y == my.pred) / length(my.pred)\n\n# Find coefficients\ncoef(my.cv, s = \"lambda.min\")\n\n# Compute log loss value\nmy.pred <- predict(my.cv, newx = x, s = \"lambda.min\", type = \"response\")\nlogloss <- 0\nfor(i in 1:length(y)) {\n  if(y[i]==\"YES\") logloss <- logloss + log(my.pred[i])\n  else logloss <- logloss + log(1-my.pred[i])\n}\n\nlogloss <- -logloss/length(y)\n\n\n# -------------------- Fitting Logistic Model -------------------- #\n\n# Fit logistic model\nmy.logit <- glm(ANGLE.CLOSURE ~., data=my.data, family=\"binomial\")\nmy.logit <- glm(ANGLE.CLOSURE ~ AOD750 + TISA750 + ACA + ACV + \n                  LENSVAULT + ASPH, data=my.data, family=\"binomial\")\nsummary(my.logit)\n \n# Check Accuracy\nmy.pred <- predict(my.logit, type=\"response\")\nmy.pred <- sapply(my.pred, function(p){\n  if(p>0.5) return(\"YES\")\n  else return(\"NO\")\n})\nsum(my.pred == my.data[,21]) / length(my.pred)",
+    "created" : 1428586099147.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1134265230",
+    "id" : "6ADEBE1E",
+    "lastKnownWriteTime" : 1428594664,
+    "path" : "D:/Dropbox/georgia tech 2015 spring/6740-machine-learning/6740 take home exam 3/6740-t-exam-3-code/1-logic.R",
+    "project_path" : "1-logic.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

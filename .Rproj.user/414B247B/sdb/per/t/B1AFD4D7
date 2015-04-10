@@ -1,0 +1,22 @@
+{
+    "contents" : "",
+    "created" : 1428594313409.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B1AFD4D7",
+    "lastKnownWriteTime" : 7741240722073845761,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "caption" : "my.pcdata",
+        "contentUrl" : "content?title=my.pcdata&file=ff7e99587d08490bb6e4c7783e1b9965.htm",
+        "displayedObservations" : "1000",
+        "displayedVariables" : 21,
+        "totalObservations" : "1372",
+        "variables" : "21"
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
