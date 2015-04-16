@@ -1,0 +1,16 @@
+{
+    "contents" : "# Clearing memory, loading package, reading the data\nrm(list=ls())\nsource_url('https://gist.githubusercontent.com/fawda123/7471137/raw\n           /466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')\nsource_url('https://gist.github.com/fawda123/6206737/raw\n           /2e1bc9cbc48d1a56d2a79dd1d33f414213f5f1b1/gar_fun.r')\nlibrary(nnet)\nlibrary(devtools)\nlibrary(pROC)\nlibrary(lattice)\ndata.tr <- dget(\"0-training-data.r\")\ndata.te <- dget(\"0-testing-data.r\")\n\n# -------------------- Choosing size and decay -------------------- #\n\n# Initializing values\nnIter <- 50\nsize <- seq(6,27,3)\ndecay <- seq(0.5,6.0,0.5)\n#   seq(0.2,2.0,0.2)\nmy.auc <- array(0, dim=c(nIter,length(size),length(decay)))\n\nfor(iter in 1:nIter){\n  # Initializing the cross validation\n  data.index <- sample(nrow(data.tr))[1:round(nrow(data.tr)/10)]\n  for(s in size) { for(d in decay) {\n    model <- nnet(y~., data=data.tr[-data.index,], size=s, decay=d)\n    yHat <- predict(model, data.tr[data.index,], type=\"raw\")\n    roc <- roc(data.tr[data.index,1]~yHat, data.tr[data.index,])\n    my.auc[iter,which(size==s),which(decay==d)] <- roc$auc\n  }}\n  print(iter)\n}\nlevelplot(apply(my.auc,c(2,3),mean))\n\n# Fitting the final model\nmodel  <- nnet(y~., data=data.tr, size=6, decay=0.5)\nplot.nnet(model)\n# Getting the prediction\nyHat <- predict(model, data.te, type=\"raw\")\n# Computing the ROC and AUC\nroc <- roc(data.te[,1]~yHat, data.te, plot=T)\n\n> roc$auc\nArea under the curve: 0.9287",
+    "created" : 1429140101146.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3674676954",
+    "id" : "5C82F840",
+    "lastKnownWriteTime" : 1429146285,
+    "path" : "D:/Dropbox/georgia tech 2015 spring/6740-machine-learning/6740 take home exam 3/6740-t-exam-3-report/6740-t-exam-3-code/2-neural-net.R",
+    "project_path" : "2-neural-net.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

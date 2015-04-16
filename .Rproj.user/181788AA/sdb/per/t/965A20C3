@@ -1,0 +1,16 @@
+{
+    "contents" : "# Clearing memory, loading package, reading the data\nrm(list=ls())\nlibrary(e1071)\nlibrary(pROC)\nlibrary(ggplot2)\nlibrary(lattice)\ndata.tr <- dget(\"0-training-data.r\")\ndata.te <- dget(\"0-testing-data.r\")\n\n# Initializing values\nnIter <- 10\ngamma <- 10^seq(-9,0,0.2)\ncost <- 10^seq(-9,0,0.25)\nmy.auc <- array(0, dim=c(nIter,length(gamma),length(cost)))\n\n# -------------------- Choosing gamma and cost -------------------- #\n\nfor(iter in 1:nIter){\n  # Initializing the cross validation\n  data.index <- sample(nrow(data.tr))[1:round(nrow(data.tr)/10)]\n  for(g in gamma) { for(c in cost) {\n    model  <- svm(y~., data=data.tr[-data.index,], gamma=g, cost=c, probability=TRUE)\n    yHat <- predict(model, data.tr[data.index,], probability=TRUE)\n    yHat <- attr(yHat, \"probabilities\")\n    roc <- roc(data.tr[data.index,1]~yHat[,1], data.tr[data.index,])\n    my.auc[iter,which(gamma==g),which(cost==c)] <- roc$auc\n  }}\n  print(iter)\n}\ntest <- apply(my.auc,c(2,3),mean)\nlevelplot(test)\n\n# -------------------- Testing model -------------------- #\n\n# Fitting the final model\nmodel  <- svm(y~., data=data.tr, gamma=0.0001, cost=1, probability=TRUE)\ndput(model, \"0-model-svm.R\")\n# Getting the prediction\nyHat <- predict(model, data.te, probability=TRUE)\nyHat <- attr(yHat, \"probabilities\")\n# Computing the ROC and AUC\nroc <- roc(data.te[,1]~yHat[,1], data.te, plot=T)\n\n> roc$auc\nArea under the curve: 0.9983",
+    "created" : 1429125828731.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1526775811",
+    "id" : "965A20C3",
+    "lastKnownWriteTime" : 1429134627,
+    "path" : "P:/6740 take home exam 3/6740-t-exam-3-report/6740-t-exam-3-code/2-svm.R",
+    "project_path" : "2-svm.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
